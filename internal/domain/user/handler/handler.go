@@ -107,7 +107,7 @@ func (u *userHandler) UpdateById(c *gin.Context) {
 		return
 	}
 
-	result, errData := u.service.UpdateById(c, id, payload)
+	result, errData := u.service.UpdateById(u.ctx, id, payload)
 
 	if errData != nil {
 		c.JSON(errData.StatusCode(), errData)
@@ -115,4 +115,24 @@ func (u *userHandler) UpdateById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+// @Summary Delete User
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 204 {object} DeleteUserResponse
+// @Router /users [delete]
+func (u *userHandler) DeleteById(c *gin.Context) {
+	id := c.Param("id")
+
+	result, errData := u.service.DeleteById(u.ctx, id)
+
+	if errData != nil {
+		c.JSON(errData.StatusCode(), errData)
+		return
+	}
+
+	c.JSON(http.StatusNoContent, result)
 }

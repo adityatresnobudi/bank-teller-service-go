@@ -152,5 +152,14 @@ func (u *userPG) UpdateById(ctx context.Context, user entity.User) (*entity.User
 	return &updatedUser, nil
 }
 func (u *userPG) DeleteById(ctx context.Context, id uuid.UUID) errs.MessageErr {
+	if _, err := u.db.ExecContext(
+		ctx,
+		DELETE_USER,
+		id,
+	); err != nil {
+		log.Printf("db delete transaction by id: %s\n", err.Error())
+		return errs.NewInternalServerError()
+	}
+
 	return nil
 }

@@ -17,6 +17,7 @@ type UserService interface {
 	GetOne(ctx context.Context, id string) (*dto.GetOneUserResponseDTO, errs.MessageErr)
 	Create(ctx context.Context, payload dto.CreateUserRequestDTO) (*dto.CreateUserResponseDTO, errs.MessageErr)
 	UpdateById(ctx context.Context, id string, payload dto.UpdateUserRequestDTO) (*dto.UpdateUserResponseDTO, errs.MessageErr)
+	DeleteById(ctx context.Context, id string) (*dto.DeleteByIdUserResponseDTO, errs.MessageErr)
 }
 
 type userServiceIMPL struct {
@@ -155,6 +156,30 @@ func (u *userServiceIMPL) UpdateById(ctx context.Context, id string, payload dto
 	result := dto.UpdateUserResponseDTO{
 		CommonBaseResponseDTO: dto.CommonBaseResponseDTO{Message: "User updated successfully"},
 		Data:                  *updatedUser.ToUserResponseDTO(),
+	}
+
+	return &result, nil
+}
+
+func (u *userServiceIMPL) DeleteById(ctx context.Context, id string) (*dto.DeleteByIdUserResponseDTO, errs.MessageErr) {
+	parsedId, errParseId := uuid.Parse(id)
+
+	if errParseId != nil {
+		return nil, errs.NewBadRequest("id has to be a valid uuid")
+	}
+
+	_, err := u.userRepo.GetOneById(ctx, parsedId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = u.userRepo.DeleteById(ctx, parsedId)
+	if err != nil {
+		return nil, err
+	}
+
+	result := dto.DeleteByIdUserResponseDTO{
+		CommonBaseResponseDTO: dto.CommonBaseResponseDTO{Message: "Account deleted successfully"},
 	}
 
 	return &result, nil

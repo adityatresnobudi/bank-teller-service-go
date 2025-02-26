@@ -5,5 +5,6 @@ func (u *userHandler) MapRoutes() {
 		GET("", u.GetAll).
 		GET("/:id", u.GetOne).
 		POST("", u.Create).
-		PUT("/:id", u.UpdateById)
+		PUT("/:id", u.UpdateById).
+		DELETE("/:id", u.DeleteById)
 }
