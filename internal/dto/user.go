@@ -33,6 +33,7 @@ type GetAllUsersResponseDTO struct {
 } // @name GetAllUsersResponse
 
 type GetOneUserResponseDTO struct {
+	CommonBaseResponseDTO
 	Data UserResponseDTO `json:"data"`
 } // @name GetOneUserResponse
 

@@ -41,3 +41,22 @@ func (u *userHandler) GetAll(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+// @Summary Get One User By ID
+// @Tags users
+// @Produce json
+// @Param id path string true "user ID"
+// @Success 200 {object}  GetOneUserResponse
+// @Router /users/{id} [get]
+func (u *userHandler) GetOne(c *gin.Context) {
+	id := c.Param("id")
+
+	result, err := u.service.GetOne(u.ctx, id)
+
+	if err != nil {
+		c.JSON(err.StatusCode(), err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}

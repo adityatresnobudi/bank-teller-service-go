@@ -54,7 +54,36 @@ func (u *userPG) GetAll(ctx context.Context) ([]entity.User, errs.MessageErr) {
 	return users, nil
 }
 func (u *userPG) GetOneById(ctx context.Context, id uuid.UUID) (*entity.User, errs.MessageErr) {
-	return nil, nil
+	_, err := u.db.QueryContext(ctx, GET_USER_BY_ID, id)
+	user := entity.User{}
+
+	if err != nil {
+		log.Printf("db get one user by id: %s\n", err.Error())
+		return nil, errs.NewInternalServerError()
+	}
+
+	if err := u.db.QueryRowContext(
+		ctx,
+		GET_USER_BY_ID,
+		id,
+	).Scan(
+		&user.Id,
+		&user.Name,
+		&user.PhoneNumber,
+		&user.Password,
+		&user.Role,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	); err != nil {
+		log.Printf("db scan get one user by id: %s\n", err.Error())
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("user was not found")
+		}
+		return nil, errs.NewInternalServerError()
+	}
+
+	return &user, nil
 }
 func (u *userPG) Create(ctx context.Context, user entity.User) (*entity.User, errs.MessageErr) {
 	return nil, nil
