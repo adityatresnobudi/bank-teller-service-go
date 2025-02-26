@@ -88,3 +88,31 @@ func (u *userHandler) Create(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, result)
 }
+
+// @Summary Update User
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param requestBody body UpdateUserRequest true "Request Body"
+// @Success 200 {object} UpdateUserResponse
+// @Router /users [put]
+func (u *userHandler) UpdateById(c *gin.Context) {
+	id := c.Param("id")
+	payload := dto.UpdateUserRequestDTO{}
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		errData := errs.NewUnprocessibleEntityError(err.Error())
+		c.JSON(errData.StatusCode(), errData)
+		return
+	}
+
+	result, errData := u.service.UpdateById(c, id, payload)
+
+	if errData != nil {
+		c.JSON(errData.StatusCode(), errData)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}

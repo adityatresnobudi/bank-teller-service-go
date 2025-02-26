@@ -54,13 +54,7 @@ func (u *userPG) GetAll(ctx context.Context) ([]entity.User, errs.MessageErr) {
 	return users, nil
 }
 func (u *userPG) GetOneById(ctx context.Context, id uuid.UUID) (*entity.User, errs.MessageErr) {
-	// _, err := u.db.QueryContext(ctx, GET_USER_BY_ID, id)
 	user := entity.User{}
-
-	// if err != nil {
-	// 	log.Printf("db get one user by id: %s\n", err.Error())
-	// 	return nil, errs.NewInternalServerError()
-	// }
 
 	if err := u.db.QueryRowContext(
 		ctx,
@@ -86,13 +80,7 @@ func (u *userPG) GetOneById(ctx context.Context, id uuid.UUID) (*entity.User, er
 	return &user, nil
 }
 func (u *userPG) GetOneByEmail(ctx context.Context, email string) (*entity.User, errs.MessageErr) {
-	// _, err := u.db.QueryContext(ctx, GET_USER_BY_EMAIL, email)
 	user := entity.User{}
-
-	// if err != nil {
-	// 	log.Printf("db get one user by id: %s\n", err.Error())
-	// 	return nil, errs.NewInternalServerError()
-	// }
 
 	if err := u.db.QueryRowContext(
 		ctx,
@@ -133,7 +121,35 @@ func (u *userPG) Create(ctx context.Context, user entity.User) (errs.MessageErr)
 	return nil
 }
 func (u *userPG) UpdateById(ctx context.Context, user entity.User) (*entity.User, errs.MessageErr) {
-	return nil, nil
+	updatedUser := entity.User{}
+
+	if err := u.db.QueryRowContext(
+		ctx,
+		UPDATE_USER,
+		user.Name,
+		user.PhoneNumber,
+		user.Password,
+		user.Email,
+		user.Role,
+		user.Id,
+	).Scan(
+		&updatedUser.Id,
+		&updatedUser.Name,
+		&updatedUser.PhoneNumber,
+		&updatedUser.Password,
+		&updatedUser.Role,
+		&updatedUser.Email,
+		&updatedUser.CreatedAt,
+		&updatedUser.UpdatedAt,
+	); err != nil {
+		log.Printf("db scan update user by id: %s\n", err.Error())
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("user was not found")
+		}
+		return nil, errs.NewInternalServerError()
+	}
+
+	return &updatedUser, nil
 }
 func (u *userPG) DeleteById(ctx context.Context, id uuid.UUID) errs.MessageErr {
 	return nil

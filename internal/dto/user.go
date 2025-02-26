@@ -23,8 +23,11 @@ type CreateUserRequestDTO struct {
 } // @name CreateUserRequest
 
 type UpdateUserRequestDTO struct {
-	UserHolder string  `json:"user_holder" example:"thomas"`
-	Balance    float64 `json:"balance" example:"50000"`
+	Name        string    `json:"name" example:"adit"`
+	PhoneNumber string    `json:"phone_number" example:"adit"`
+	Password    string    `json:"password" example:"a;dkqenrpokldafj;akjdga"`
+	Role        string    `json:"role" example:"customer"`
+	Email       string    `json:"email" example:"adit@abc.xyz"`
 } // @name UpdateUserRequest
 
 type GetAllUsersResponseDTO struct {

@@ -18,13 +18,12 @@ const GET_USER_BY_EMAIL = `
 const INSERT_USER = `
 	INSERT INTO users (name, phone_number, password, email) 
 	VALUES ($1, $2, $3, $4)
-	RETURNING id, name, phone_number, password, role, email, created_at, updated_at
 `
 
 const UPDATE_USER = `
 	UPDATE users
-	SET account_holder = $1, balance = $2
-	WHERE id = $3
+	SET name = $1, phone_number = $2, password = $3, email = $4, role = $5
+	WHERE id = $6
 	RETURNING id, name, phone_number, password, role, email, created_at, updated_at
 `
 

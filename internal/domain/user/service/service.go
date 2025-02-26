@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/dto"
@@ -15,6 +16,7 @@ type UserService interface {
 	GetAll(ctx context.Context) (*dto.GetAllUsersResponseDTO, errs.MessageErr)
 	GetOne(ctx context.Context, id string) (*dto.GetOneUserResponseDTO, errs.MessageErr)
 	Create(ctx context.Context, payload dto.CreateUserRequestDTO) (*dto.CreateUserResponseDTO, errs.MessageErr)
+	UpdateById(ctx context.Context, id string, payload dto.UpdateUserRequestDTO) (*dto.UpdateUserResponseDTO, errs.MessageErr)
 }
 
 type userServiceIMPL struct {
@@ -64,7 +66,7 @@ func (u *userServiceIMPL) GetOne(ctx context.Context, id string) (*dto.GetOneUse
 }
 
 func (u *userServiceIMPL) Create(ctx context.Context, payload dto.CreateUserRequestDTO) (*dto.CreateUserResponseDTO, errs.MessageErr) {
-	if err := u.createValidator(payload); err != nil {
+	if err := u.emailValidator(payload.Email); err != nil {
 		return nil, err
 	}
 
@@ -82,7 +84,7 @@ func (u *userServiceIMPL) Create(ctx context.Context, payload dto.CreateUserRequ
 	}
 
 	user := entity.User{
-		Email: payload.Email,
+		Email:    payload.Email,
 		Password: payload.Password,
 	}
 
@@ -98,6 +100,61 @@ func (u *userServiceIMPL) Create(ctx context.Context, payload dto.CreateUserRequ
 
 	result := dto.CreateUserResponseDTO{
 		CommonBaseResponseDTO: dto.CommonBaseResponseDTO{Message: "User created successfully"},
+	}
+
+	return &result, nil
+}
+
+func (u *userServiceIMPL) UpdateById(ctx context.Context, id string, payload dto.UpdateUserRequestDTO) (*dto.UpdateUserResponseDTO, errs.MessageErr) {
+	parsedId, err := uuid.Parse(id)
+	if err != nil {
+		return nil, errs.NewBadRequest("id has to be a valid uuid")
+	}
+
+	if payload.Email != "" {
+		if err := u.emailValidator(payload.Email); err != nil {
+			return nil, err
+		}
+	}
+
+	user, errData := u.userRepo.GetOneById(
+		ctx,
+		parsedId,
+	)
+
+	if errData != nil && errData.StatusCode() != http.StatusNotFound {
+		return nil, errData
+	}
+
+	if user == nil {
+		return nil, errs.NewBadRequest("user does not exist")
+	}
+
+	if payload.Name != "" {
+		user.Name = payload.Name
+	}
+	fmt.Println(user.Name)
+
+	if payload.PhoneNumber != "" {
+		user.PhoneNumber = payload.PhoneNumber
+	}
+
+	if payload.Password != "" {
+		user.Password = payload.Password
+	}
+
+	if payload.Email != "" {
+		user.Email = payload.Email
+	}
+
+	updatedUser, errData := u.userRepo.UpdateById(ctx, *user)
+	if errData != nil {
+		return nil, errData
+	}
+
+	result := dto.UpdateUserResponseDTO{
+		CommonBaseResponseDTO: dto.CommonBaseResponseDTO{Message: "User updated successfully"},
+		Data:                  *updatedUser.ToUserResponseDTO(),
 	}
 
 	return &result, nil
