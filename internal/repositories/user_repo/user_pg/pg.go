@@ -25,7 +25,7 @@ func (u *userPG) GetAll(ctx context.Context) ([]entity.User, errs.MessageErr) {
 	rows, err := u.db.QueryContext(ctx, GET_ALL_USER)
 
 	if err != nil {
-		log.Printf("db get all todos: %s\n", err.Error())
+		log.Printf("db get all users: %s\n", err.Error())
 		return nil, errs.NewInternalServerError()
 	}
 
@@ -157,7 +157,7 @@ func (u *userPG) DeleteById(ctx context.Context, id uuid.UUID) errs.MessageErr {
 		DELETE_USER,
 		id,
 	); err != nil {
-		log.Printf("db delete transaction by id: %s\n", err.Error())
+		log.Printf("db delete service by id: %s\n", err.Error())
 		return errs.NewInternalServerError()
 	}
 

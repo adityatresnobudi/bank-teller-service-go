@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/dto"
@@ -134,7 +133,6 @@ func (u *userServiceIMPL) UpdateById(ctx context.Context, id string, payload dto
 	if payload.Name != "" {
 		user.Name = payload.Name
 	}
-	fmt.Println(user.Name)
 
 	if payload.PhoneNumber != "" {
 		user.PhoneNumber = payload.PhoneNumber
@@ -179,7 +177,7 @@ func (u *userServiceIMPL) DeleteById(ctx context.Context, id string) (*dto.Delet
 	}
 
 	result := dto.DeleteByIdUserResponseDTO{
-		CommonBaseResponseDTO: dto.CommonBaseResponseDTO{Message: "Account deleted successfully"},
+		CommonBaseResponseDTO: dto.CommonBaseResponseDTO{Message: "Service deleted successfully"},
 	}
 
 	return &result, nil

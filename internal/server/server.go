@@ -9,8 +9,11 @@ import (
 	"syscall"
 
 	"github.com/adityatresnobudi/bank-teller-service-go/config"
-	"github.com/adityatresnobudi/bank-teller-service-go/internal/domain/user/handler"
-	"github.com/adityatresnobudi/bank-teller-service-go/internal/domain/user/service"
+	serviceHandler "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/service/handler"
+	serviceService "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/service/service"
+	userHandler "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/user/handler"
+	userService "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/user/service"
+	"github.com/adityatresnobudi/bank-teller-service-go/internal/repositories/service_repo/service_pg"
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/repositories/user_repo/user_pg"
 	"github.com/adityatresnobudi/bank-teller-service-go/pkg/postgres"
 	"github.com/gin-gonic/gin"
@@ -59,12 +62,16 @@ func (s *server) Run() {
 	signal.Notify(ch, syscall.SIGTERM)
 
 	userRepo := user_pg.NewUserRepo(db)
+	serviceRepo := service_pg.NewServiceRepo(db)
 
-	userService := service.NewUserService(userRepo)
+	userService := userService.NewUserService(userRepo)
+	serviceService := serviceService.NewServiceService(serviceRepo)
 
-	userHandler := handler.NewUserHandler(s.r, ctx, userService)
+	userHandler := userHandler.NewUserHandler(s.r, ctx, userService)
+	serviceHandler := serviceHandler.NewServiceHandler(s.r, ctx, serviceService)
 
 	userHandler.MapRoutes()
+	serviceHandler.MapRoutes()
 
 	go func() {
 		log.Printf("Listening on PORT: %s\n", s.cfg.Http.Port)
