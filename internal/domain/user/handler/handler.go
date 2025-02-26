@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/domain/user/service"
+	"github.com/adityatresnobudi/bank-teller-service-go/internal/dto"
+	"github.com/adityatresnobudi/bank-teller-service-go/pkg/errs"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,4 +61,30 @@ func (u *userHandler) GetOne(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+// @Summary Create User
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param requestBody body CreateUserRequest true "Request Body"
+// @Success 201 {object} CreateUserResponse
+// @Router /users [post]
+func (u *userHandler) Create(c *gin.Context) {
+	payload := dto.CreateUserRequestDTO{}
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		errData := errs.NewUnprocessibleEntityError(err.Error())
+		c.JSON(errData.StatusCode(), errData)
+		return
+	}
+
+	result, err := u.service.Create(u.ctx, payload)
+
+	if err != nil {
+		c.JSON(err.StatusCode(), err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, result)
 }

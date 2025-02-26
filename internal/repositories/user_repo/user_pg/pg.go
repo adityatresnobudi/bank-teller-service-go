@@ -54,13 +54,13 @@ func (u *userPG) GetAll(ctx context.Context) ([]entity.User, errs.MessageErr) {
 	return users, nil
 }
 func (u *userPG) GetOneById(ctx context.Context, id uuid.UUID) (*entity.User, errs.MessageErr) {
-	_, err := u.db.QueryContext(ctx, GET_USER_BY_ID, id)
+	// _, err := u.db.QueryContext(ctx, GET_USER_BY_ID, id)
 	user := entity.User{}
 
-	if err != nil {
-		log.Printf("db get one user by id: %s\n", err.Error())
-		return nil, errs.NewInternalServerError()
-	}
+	// if err != nil {
+	// 	log.Printf("db get one user by id: %s\n", err.Error())
+	// 	return nil, errs.NewInternalServerError()
+	// }
 
 	if err := u.db.QueryRowContext(
 		ctx,
@@ -85,8 +85,52 @@ func (u *userPG) GetOneById(ctx context.Context, id uuid.UUID) (*entity.User, er
 
 	return &user, nil
 }
-func (u *userPG) Create(ctx context.Context, user entity.User) (*entity.User, errs.MessageErr) {
-	return nil, nil
+func (u *userPG) GetOneByEmail(ctx context.Context, email string) (*entity.User, errs.MessageErr) {
+	// _, err := u.db.QueryContext(ctx, GET_USER_BY_EMAIL, email)
+	user := entity.User{}
+
+	// if err != nil {
+	// 	log.Printf("db get one user by id: %s\n", err.Error())
+	// 	return nil, errs.NewInternalServerError()
+	// }
+
+	if err := u.db.QueryRowContext(
+		ctx,
+		GET_USER_BY_EMAIL,
+		email,
+	).Scan(
+		&user.Id,
+		&user.Name,
+		&user.PhoneNumber,
+		&user.Password,
+		&user.Role,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	); err != nil {
+		log.Printf("db scan get one user by email: %s\n", err.Error())
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("user was not found")
+		}
+		return nil, errs.NewInternalServerError()
+	}
+
+	return &user, nil
+}
+func (u *userPG) Create(ctx context.Context, user entity.User) (errs.MessageErr) {
+	if _, err := u.db.ExecContext(
+		ctx,
+		INSERT_USER,
+		user.Name,
+		user.PhoneNumber,
+		user.Password,
+		user.Email,
+	); err != nil {
+		log.Printf("db scan create user: %s\n", err.Error())
+		return errs.NewInternalServerError()
+	}
+
+	return nil
 }
 func (u *userPG) UpdateById(ctx context.Context, user entity.User) (*entity.User, errs.MessageErr) {
 	return nil, nil

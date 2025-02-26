@@ -4,7 +4,9 @@ import (
 	"time"
 
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/dto"
+	"github.com/adityatresnobudi/bank-teller-service-go/pkg/errs"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -40,4 +42,27 @@ func (u Users) ToSliceOfUsersResponseDTO() []dto.UserResponseDTO {
 	}
 
 	return result
+}
+
+func (u *User) HashPassword() errs.MessageErr {
+	b, err := bcrypt.GenerateFromPassword([]byte(u.Password), 8)
+
+	if err != nil {
+		return errs.NewInternalServerError()
+	}
+
+	u.Password = string(b)
+
+	return nil
+}
+
+func (u *User) Compare(password string) errs.MessageErr {
+	if err := bcrypt.CompareHashAndPassword(
+		[]byte(u.Password),
+		[]byte(password),
+	); err != nil {
+		return errs.NewUnauthorizedError("invalid password")
+	}
+
+	return nil
 }

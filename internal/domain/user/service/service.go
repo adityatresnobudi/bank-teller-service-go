@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/dto"
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/entity"
@@ -13,6 +14,7 @@ import (
 type UserService interface {
 	GetAll(ctx context.Context) (*dto.GetAllUsersResponseDTO, errs.MessageErr)
 	GetOne(ctx context.Context, id string) (*dto.GetOneUserResponseDTO, errs.MessageErr)
+	Create(ctx context.Context, payload dto.CreateUserRequestDTO) (*dto.CreateUserResponseDTO, errs.MessageErr)
 }
 
 type userServiceIMPL struct {
@@ -56,6 +58,46 @@ func (u *userServiceIMPL) GetOne(ctx context.Context, id string) (*dto.GetOneUse
 	result := dto.GetOneUserResponseDTO{
 		CommonBaseResponseDTO: dto.CommonBaseResponseDTO{Message: "OK"},
 		Data:                  *user.ToUserResponseDTO(),
+	}
+
+	return &result, nil
+}
+
+func (u *userServiceIMPL) Create(ctx context.Context, payload dto.CreateUserRequestDTO) (*dto.CreateUserResponseDTO, errs.MessageErr) {
+	if err := u.createValidator(payload); err != nil {
+		return nil, err
+	}
+
+	existingUser, err := u.userRepo.GetOneByEmail(
+		ctx,
+		payload.Email,
+	)
+
+	if err != nil && err.StatusCode() != http.StatusNotFound {
+		return nil, err
+	}
+
+	if existingUser != nil {
+		return nil, errs.NewConflictError("user already exists")
+	}
+
+	user := entity.User{
+		Email: payload.Email,
+		Password: payload.Password,
+	}
+
+	if err := user.HashPassword(); err != nil {
+		return nil, err
+	}
+
+	err = u.userRepo.Create(ctx, user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := dto.CreateUserResponseDTO{
+		CommonBaseResponseDTO: dto.CommonBaseResponseDTO{Message: "User created successfully"},
 	}
 
 	return &result, nil

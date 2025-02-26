@@ -32,7 +32,7 @@ func InitializeTable(db *sql.DB) error {
 		name VARCHAR(255) NOT NULL,
 		phone_number VARCHAR(255) UNIQUE NOT NULL,
 		password TEXT NOT NULL,
-		role VARCHAR(50) NOT NULL CHECK (role IN ('customer', 'teller')),
+		role VARCHAR(50) NOT NULL CHECK (role IN ('customer', 'teller')) DEFAULT 'customer',
 		email VARCHAR(255) UNIQUE NOT NULL,
 		created_at TIMESTAMP DEFAULT NOW(),
 		updated_at TIMESTAMP DEFAULT NOW()
