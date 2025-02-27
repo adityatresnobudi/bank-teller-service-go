@@ -96,6 +96,29 @@ func (s *servicePG) GetOneByCode(ctx context.Context, code string) (*entity.Serv
 
 	return &service, nil
 }
+func (s *servicePG) GetOneByName(ctx context.Context, name string) (*entity.Service, errs.MessageErr) {
+	service := entity.Service{}
+
+	if err := s.db.QueryRowContext(
+		ctx,
+		GET_SERVICE_BY_NAME,
+		name,
+	).Scan(
+		&service.Id,
+		&service.Name,
+		&service.Code,
+		&service.CreatedAt,
+		&service.UpdatedAt,
+	); err != nil {
+		log.Printf("db scan get one service by code: %s\n", err.Error())
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("service was not found")
+		}
+		return nil, errs.NewInternalServerError()
+	}
+
+	return &service, nil
+}
 func (s *servicePG) Create(ctx context.Context, service entity.Service) errs.MessageErr {
 	if _, err := s.db.ExecContext(
 		ctx,

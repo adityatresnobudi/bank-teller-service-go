@@ -50,7 +50,7 @@ func InitializeTable(db *sql.DB) error {
 	q3 := `
 		CREATE TABLE IF NOT EXISTS queues (
 		id UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-		status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'processed', 'completed')),
+		status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'processed', 'completed')) DEFAULT 'pending',
 		queue_number varchar(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT NOW(),
 		updated_at TIMESTAMP DEFAULT NOW(),

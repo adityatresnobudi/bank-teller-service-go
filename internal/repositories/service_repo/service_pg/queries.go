@@ -15,6 +15,11 @@ const GET_SERVICE_BY_CODE = `
 	FROM services WHERE code = $1
 `
 
+const GET_SERVICE_BY_NAME = `
+	SELECT id, code, name, created_at, updated_at
+	FROM services WHERE name = $1
+`
+
 const INSERT_SERVICE = `
 	INSERT INTO services (code, name) 
 	VALUES ($1, $2)

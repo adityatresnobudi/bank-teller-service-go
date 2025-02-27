@@ -102,6 +102,31 @@ func (q *queuePG) GetOneByQueueNum(ctx context.Context, queueNum string) (*entit
 
 	return &queue, nil
 }
+func (q *queuePG) GetLatestQueueNum(ctx context.Context, serviceId uuid.UUID) (*entity.Queue, errs.MessageErr) {
+	queue := entity.Queue{}
+
+	if err := q.db.QueryRowContext(
+		ctx,
+		GET_LATEST_QUEUE_BY_SERVICEID,
+		serviceId,
+	).Scan(
+		&queue.Id,
+		&queue.Status,
+		&queue.QueueNum,
+		&queue.CreatedAt,
+		&queue.UpdatedAt,
+		&queue.UserId,
+		&queue.ServiceId,
+	); err != nil {
+		log.Printf("db scan get one queue by queue number: %s\n", err.Error())
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("queue was not found")
+		}
+		return nil, errs.NewInternalServerError()
+	}
+
+	return &queue, nil
+}
 func (q *queuePG) Create(ctx context.Context, queue entity.Queue) errs.MessageErr {
 	if _, err := q.db.ExecContext(
 		ctx,
@@ -116,7 +141,7 @@ func (q *queuePG) Create(ctx context.Context, queue entity.Queue) errs.MessageEr
 
 	return nil
 }
-func (q *queuePG) UpdateById(ctx context.Context, queue entity.Queue) (*entity.Queue, errs.MessageErr) {
+func (q *queuePG) UpdateByQueueNum(ctx context.Context, queue entity.Queue) (*entity.Queue, errs.MessageErr) {
 	updatedQueue := entity.Queue{}
 
 	if err := q.db.QueryRowContext(

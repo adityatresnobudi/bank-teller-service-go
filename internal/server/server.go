@@ -9,10 +9,13 @@ import (
 	"syscall"
 
 	"github.com/adityatresnobudi/bank-teller-service-go/config"
+	queueHandler "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/queue/handler"
+	queueService "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/queue/service"
 	serviceHandler "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/service/handler"
 	serviceService "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/service/service"
 	userHandler "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/user/handler"
 	userService "github.com/adityatresnobudi/bank-teller-service-go/internal/domain/user/service"
+	"github.com/adityatresnobudi/bank-teller-service-go/internal/repositories/queue_repo/queue_pg"
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/repositories/service_repo/service_pg"
 	"github.com/adityatresnobudi/bank-teller-service-go/internal/repositories/user_repo/user_pg"
 	"github.com/adityatresnobudi/bank-teller-service-go/pkg/postgres"
@@ -63,15 +66,19 @@ func (s *server) Run() {
 
 	userRepo := user_pg.NewUserRepo(db)
 	serviceRepo := service_pg.NewServiceRepo(db)
+	queueRepo := queue_pg.NewQueueRepo(db)
 
 	userService := userService.NewUserService(userRepo)
 	serviceService := serviceService.NewServiceService(serviceRepo)
+	queueService := queueService.NewQueueService(queueRepo, serviceRepo, userRepo)
 
 	userHandler := userHandler.NewUserHandler(s.r, ctx, userService)
 	serviceHandler := serviceHandler.NewServiceHandler(s.r, ctx, serviceService)
+	queueHandler := queueHandler.NewQueueHandler(s.r, ctx, queueService)
 
 	userHandler.MapRoutes()
 	serviceHandler.MapRoutes()
+	queueHandler.MapRoutes()
 
 	go func() {
 		log.Printf("Listening on PORT: %s\n", s.cfg.Http.Port)

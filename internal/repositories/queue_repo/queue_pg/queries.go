@@ -1,18 +1,30 @@
 package queue_pg
 
 const GET_ALL_QUEUE = `
-	SELECT id, status, queue_number, created_at, updated_at, user_id, services_id
+	SELECT id, status, queue_number, created_at, updated_at, user_id, service_id
 	FROM queues
 `
 
 const GET_QUEUE_BY_ID = `
-	SELECT id, status, queue_number, created_at, updated_at, user_id, services_id
+	SELECT id, status, queue_number, created_at, updated_at, user_id, service_id
 	FROM queues WHERE id = $1
 `
 
 const GET_QUEUE_BY_QUEUE_NUMBER = `
-	SELECT id, status, queue_number, created_at, updated_at, user_id, services_id
+	SELECT id, status, queue_number, created_at, updated_at, user_id, service_id
 	FROM queues WHERE queue_number = $1
+`
+
+const GET_QUEUE_BY_SERVICECODE = `
+	SELECT id, status, queue_number, created_at, updated_at, user_id, service_id
+	FROM queues WHERE queue_number = $1
+`
+
+const GET_LATEST_QUEUE_BY_SERVICEID = `
+	SELECT id, status, queue_number, created_at, updated_at, user_id, service_id
+	FROM queues WHERE service_id = $1
+	ORDER BY created_at DESC
+	LIMIT 1
 `
 
 const INSERT_QUEUE = `
