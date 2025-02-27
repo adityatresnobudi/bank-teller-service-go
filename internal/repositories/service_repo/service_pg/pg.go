@@ -87,7 +87,7 @@ func (s *servicePG) GetOneByCode(ctx context.Context, code string) (*entity.Serv
 		&service.CreatedAt,
 		&service.UpdatedAt,
 	); err != nil {
-		log.Printf("db scan get one service by email: %s\n", err.Error())
+		log.Printf("db scan get one service by code: %s\n", err.Error())
 		if err == sql.ErrNoRows {
 			return nil, errs.NewNotFoundError("service was not found")
 		}

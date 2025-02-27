@@ -51,11 +51,11 @@ func InitializeTable(db *sql.DB) error {
 		CREATE TABLE IF NOT EXISTS queues (
 		id UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 		status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'processed', 'completed')),
-		queue varchar(255) NOT NULL,
+		queue_number varchar(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT NOW(),
 		updated_at TIMESTAMP DEFAULT NOW(),
 		user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-		services_id UUID REFERENCES services(id) ON DELETE cascade
+		service_id UUID REFERENCES services(id) ON DELETE cascade
 	);`
 
 	if _, err := db.Exec(q1); err != nil {
