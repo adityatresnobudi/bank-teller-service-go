@@ -155,6 +155,8 @@ func (q *queueServiceIMPL) UpdateByQueueNum(ctx context.Context, payload dto.Upd
 		queue.Status = "processed"
 	case "processed":
 		queue.Status = "completed"
+	case "completed":
+		return nil, errs.NewBadRequest("queue already done")
 	}
 
 	updatedQueue, errData := q.queueRepo.UpdateByQueueNum(ctx, *queue)
